@@ -13,6 +13,11 @@ import (
 	coreinformers "k8s.io/client-go/informers/core/v1"
 )
 
+const (
+	// TrustBundleConfigMapKeyName is the key name of the trust bundle in the configmap
+	TrustBundleConfigMapKeyName = "ca.crt"
+)
+
 type provider struct {
 	secretInformer coreinformers.SecretInformer
 	cmInformer     coreinformers.ConfigMapInformer
@@ -31,7 +36,12 @@ func (prov *provider) getAdditionalTrustBundle() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return cm.Data["ca.crt"], nil
+	trustBundleData, ok := cm.Data[TrustBundleConfigMapKeyName]
+	if !ok {
+		return "", fmt.Errorf("no %q data found in configmap %s/%s",
+			TrustBundleConfigMapKeyName, trustBundleRef.Namespace, trustBundleRef.Name)
+	}
+	return trustBundleData, nil
 }
 
 func (prov *provider) getCredentials(_ types.Topology) (*types.ApiCredentials, error) {
