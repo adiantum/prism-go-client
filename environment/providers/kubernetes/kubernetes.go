@@ -5,7 +5,6 @@
 package kubernetes
 
 import (
-	"encoding/base64"
 	"fmt"
 	"net/url"
 
@@ -40,11 +39,9 @@ func (prov *provider) getAdditionalTrustBundle() (string, error) {
 		return cert, nil
 	}
 	if b64Cert, ok := cm.BinaryData[certBundleKey]; ok {
-		cert, err := base64.StdEncoding.DecodeString(string(b64Cert))
-		if err != nil {
-			return "", err
-		}
-		return string(cert), nil
+		fmt.Println("b64Cert", b64Cert)
+		fmt.Println("b64CertStr", string(b64Cert))
+		return string(b64Cert), nil
 	}
 	return "", nil
 }
