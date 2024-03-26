@@ -73,6 +73,15 @@ func WithLogger(logger *logr.Logger) ClientOption {
 	}
 }
 
+// WithUserAgent sets the user agent for the client
+// If set, this will override the default user agent
+func WithUserAgent(userAgent string) ClientOption {
+	return func(c *Client) error {
+		c.clientOpts = append(c.clientOpts, internal.WithUserAgent(userAgent))
+		return nil
+	}
+}
+
 // NewV3Client return a internal to operate V3 resources
 func NewV3Client(credentials prismgoclient.Credentials, opts ...ClientOption) (*Client, error) {
 	v3Client := &Client{}
@@ -86,11 +95,13 @@ func NewV3Client(credentials prismgoclient.Credentials, opts ...ClientOption) (*
 		return nil, fmt.Errorf("username, password and endpoint are required")
 	}
 
-	v3Client.clientOpts = append(v3Client.clientOpts,
-		internal.WithCredentials(&credentials),
-		internal.WithUserAgent(userAgent),
-		internal.WithAbsolutePath(absolutePath),
-	)
+	v3Client := &Client{
+		clientOpts: []internal.ClientOption{
+			internal.WithCredentials(&credentials),
+			internal.WithUserAgent(userAgent),
+			internal.WithAbsolutePath(absolutePath),
+		},
+	}
 
 	httpClient, err := internal.NewClient(v3Client.clientOpts...)
 	if err != nil {
