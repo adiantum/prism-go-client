@@ -95,7 +95,7 @@ func NewV3Client(credentials prismgoclient.Credentials, opts ...ClientOption) (*
 		return nil, fmt.Errorf("username, password and endpoint are required")
 	}
 
-	v3Client := &Client{
+	v3Client = &Client{
 		clientOpts: []internal.ClientOption{
 			internal.WithCredentials(&credentials),
 			internal.WithUserAgent(userAgent),
